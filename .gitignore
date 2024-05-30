@@ -1,0 +1,6 @@
+.vercel
+.env
+vercel.json
+
+# Project exclude paths
+/venv/
