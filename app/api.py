@@ -18,13 +18,3 @@ def on_startup():
 
 app.include_router(programs.router)
 app.include_router(muscles.router)
-
-
-
-
-
-
-
-
-
-
