@@ -61,26 +61,6 @@ def get_muscle_group_by_id(
     return muscle_group
 
 
-@router.post("/groups", status_code=status.HTTP_201_CREATED, response_model=MuscleGroup)
-def create_muscle_group(
-    group: MuscleGroupBase, session: Session = Depends(get_session)
-):
-    db_muscle_group = MuscleGroup.model_validate(group)
-    session.add(db_muscle_group)
-    session.commit()
-    session.refresh(db_muscle_group)
-    return db_muscle_group
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Muscle)
-def create_muscle(muscle: MuscleBase, session: Session = Depends(get_session)):
-    db_muscle = Muscle.model_validate(muscle)
-    session.add(db_muscle)
-    session.commit()
-    session.refresh(db_muscle)
-    return db_muscle
-
-
 @router.get("/", response_model=list[Muscle])
 def get_muscles(session: Session = Depends(get_session)):
     muscles = session.exec(select(Muscle)).all()
@@ -102,6 +82,26 @@ def get_muscle_by_id(muscle_id: int, session: Session = Depends(get_session)):
             detail=f"muscle with id: {muscle_id} was not found",
         )
     return muscle
+
+
+@router.post("/groups", status_code=status.HTTP_201_CREATED, response_model=MuscleGroup)
+def create_muscle_group(
+    group: MuscleGroupBase, session: Session = Depends(get_session)
+):
+    db_muscle_group = MuscleGroup.model_validate(group)
+    session.add(db_muscle_group)
+    session.commit()
+    session.refresh(db_muscle_group)
+    return db_muscle_group
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Muscle)
+def create_muscle(muscle: MuscleBase, session: Session = Depends(get_session)):
+    db_muscle = Muscle.model_validate(muscle)
+    session.add(db_muscle)
+    session.commit()
+    session.refresh(db_muscle)
+    return db_muscle
 
 
 @router.delete("/{muscle_id}", status_code=status.HTTP_204_NO_CONTENT)
