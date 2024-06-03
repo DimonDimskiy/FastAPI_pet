@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from mangum import Mangum
 
 from .routers import programs, muscles, exercises
 from .database import create_db_and_tables
 
 app = FastAPI()
+handler = Mangum(app)
 
 
 @app.on_event("startup")

@@ -5,13 +5,4 @@ from sqlalchemy.exc import NoResultFound
 from app.dependencies import get_session
 
 
-
 router = APIRouter(prefix="/programs", tags=["programs"])
-
-
-
-
-
-
-
-
