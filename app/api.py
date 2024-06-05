@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from mangum import Mangum
 
-from .routers import programs, muscles, exercises
+from .routers import programs, muscles, exercises, users
 from .database import create_db_and_tables
 
 app = FastAPI()
@@ -21,3 +21,4 @@ def index():
 app.include_router(programs.router)
 app.include_router(muscles.router)
 app.include_router(exercises.router)
+app.include_router(users.router)

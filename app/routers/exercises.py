@@ -4,14 +4,8 @@ from sqlalchemy.exc import NoResultFound
 from collections import defaultdict
 
 from app.dependencies import get_session
-from app.models import (
-    Muscle,
-    MuscleGroup,
-    MuscleBase,
-    MuscleGroupBase,
-    ExerciseBase,
-    Exercise,
-)
+from app.models import Muscle, MuscleGroup, Exercise
+from app.schemas import MuscleBase, MuscleGroupBase, ExerciseBase
 
 
 router = APIRouter(prefix="/exercises", tags=["exercises"])

@@ -1,10 +1,9 @@
-import os
 from sqlmodel import SQLModel, create_engine
-from dotenv import load_dotenv
 
-load_dotenv()
+from app.config import DATABASE_URL
 
-engine = create_engine(os.getenv("DATABASE_URL"))
+
+engine = create_engine(DATABASE_URL)
 
 
 def create_db_and_tables():
