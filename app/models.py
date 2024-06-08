@@ -44,7 +44,6 @@ class Exercise(ExerciseBase, table=True):
 
     created_by: str | None = Field()
     created_at: datetime = Field(default_factory=datetime.now)
-    votes: int | None = Field(default=0)
 
     muscle_groups: list[MuscleGroup] = Relationship(
         back_populates="exercises", link_model=ExerciseGroupLink
