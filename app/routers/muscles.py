@@ -5,7 +5,10 @@ from collections import defaultdict
 
 from app.dependencies import get_session
 from app.models import Muscle, MuscleGroup
-from app.schemas import MuscleBase, MuscleGroupBase
+from app.schemas import MuscleBase, MuscleGroupBase, UserPublic
+from app.oauth2 import verify_token
+from app.utils import check_permission
+from app.config import DEFAULT_LIMIT
 
 
 router = APIRouter(prefix="/muscles", tags=["muscles"])
@@ -14,7 +17,8 @@ router = APIRouter(prefix="/muscles", tags=["muscles"])
 @router.get("/by_groups", response_model=dict[int, list[Muscle]])
 def get_grouped_muscles(session: Session = Depends(get_session)):
     content = defaultdict(list)
-    muscles = session.exec(select(Muscle)).all()
+    statement = select(Muscle)
+    muscles = session.exec(statement).all()
     for muscle in muscles:
         content[muscle.group_id].append(muscle)
     return content
@@ -63,8 +67,11 @@ def get_muscle_group_by_id(
 
 
 @router.get("/", response_model=list[Muscle])
-def get_muscles(session: Session = Depends(get_session)):
-    muscles = session.exec(select(Muscle)).all()
+def get_muscles(
+    session: Session = Depends(get_session), limit: int = DEFAULT_LIMIT, offset: int = 0
+):
+    statement = select(Muscle).offset(offset).limit(limit)
+    muscles = session.exec(statement).all()
     if not muscles:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"there is no muscles yet"
@@ -87,8 +94,12 @@ def get_muscle_by_id(muscle_id: int, session: Session = Depends(get_session)):
 
 @router.post("/groups", status_code=status.HTTP_201_CREATED, response_model=MuscleGroup)
 def create_muscle_group(
-    group: MuscleGroupBase, session: Session = Depends(get_session)
+    group: MuscleGroupBase,
+    session: Session = Depends(get_session),
+    user: UserPublic = Depends(verify_token),
 ):
+    check_permission(user, "muscle_group_post")
+
     db_muscle_group = MuscleGroup.model_validate(group)
     session.add(db_muscle_group)
     session.commit()
@@ -97,7 +108,13 @@ def create_muscle_group(
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Muscle)
-def create_muscle(muscle: MuscleBase, session: Session = Depends(get_session)):
+def create_muscle(
+    muscle: MuscleBase,
+    session: Session = Depends(get_session),
+    user: UserPublic = Depends(verify_token),
+):
+    check_permission(user, "muscle_post")
+
     db_muscle = Muscle.model_validate(muscle)
     session.add(db_muscle)
     session.commit()
@@ -106,7 +123,13 @@ def create_muscle(muscle: MuscleBase, session: Session = Depends(get_session)):
 
 
 @router.delete("/{muscle_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_muscle(muscle_id: int, session: Session = Depends(get_session)):
+def delete_muscle(
+    muscle_id: int,
+    session: Session = Depends(get_session),
+    user: UserPublic = Depends(verify_token),
+):
+    check_permission(user, "muscle_delete")
+
     statement = select(Muscle).where(Muscle.id == muscle_id)
     try:
         muscle = session.exec(statement).one()
