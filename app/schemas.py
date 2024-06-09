@@ -1,11 +1,8 @@
-from datetime import datetime
-
 from sqlmodel import Field, SQLModel, AutoString
 from pydantic import EmailStr
 
 
 class MuscleBase(SQLModel):
-    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(nullable=False)
     description: str = Field(nullable=False)
     image: str | None = Field()
@@ -13,19 +10,37 @@ class MuscleBase(SQLModel):
     group_id: int = Field(nullable=False, foreign_key="muscle_group.id", index=True)
 
 
+class MusclePublic(MuscleBase):
+    id: int
+
+
 class MuscleGroupBase(SQLModel):
-    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(nullable=False)
     description: str | None = Field()
     image: str = Field()
 
 
+class MuscleGroupPublic(MuscleGroupBase):
+    id: int
+
+
 class ExerciseBase(SQLModel):
-    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(nullable=False)
     description: str = Field(nullable=False)
     image: str = Field(nullable=False)
     video: str | None = Field()
+
+
+class ExerciseCreate(ExerciseBase):
+    muscle_groups: list[int]
+    muscles: list[int]
+
+
+class ExercisePublic(ExerciseBase):
+    id: int
+    created_by: int
+    muscle_groups: list[MuscleGroupPublic]
+    muscles: list[MusclePublic]
 
 
 class UserBase(SQLModel):
