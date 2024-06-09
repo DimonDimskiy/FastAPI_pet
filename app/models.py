@@ -26,6 +26,7 @@ class ExerciseMuscleLink(SQLModel, table=True):
 class MuscleGroup(MuscleGroupBase, table=True):
     __tablename__ = "muscle_group"
 
+    id: int | None = Field(default=None, primary_key=True)
     exercises: list["Exercise"] = Relationship(
         back_populates="muscle_groups", link_model=ExerciseGroupLink
     )
@@ -34,6 +35,7 @@ class MuscleGroup(MuscleGroupBase, table=True):
 class Muscle(MuscleBase, table=True):
     __tablename__ = "muscle"
 
+    id: int | None = Field(default=None, primary_key=True)
     exercises: list["Exercise"] = Relationship(
         back_populates="muscles", link_model=ExerciseMuscleLink
     )
@@ -42,7 +44,8 @@ class Muscle(MuscleBase, table=True):
 class Exercise(ExerciseBase, table=True):
     __tablename__ = "exercise"
 
-    created_by: str | None = Field()
+    id: int | None = Field(default=None, primary_key=True)
+    created_by: int | None = Field(nullable=False, foreign_key="user.id", index=True)
     created_at: datetime = Field(default_factory=datetime.now)
 
     muscle_groups: list[MuscleGroup] = Relationship(
