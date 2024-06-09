@@ -5,7 +5,13 @@ from collections import defaultdict
 
 from app.dependencies import get_session
 from app.models import Muscle, MuscleGroup
-from app.schemas import MuscleBase, MuscleGroupBase, UserPublic
+from app.schemas import (
+    MuscleBase,
+    MuscleGroupBase,
+    UserPublic,
+    MusclePublic,
+    MuscleGroupPublic,
+)
 from app.oauth2 import verify_token
 from app.utils import check_permission
 from app.config import DEFAULT_LIMIT
@@ -24,7 +30,7 @@ def get_grouped_muscles(session: Session = Depends(get_session)):
     return content
 
 
-@router.get("/by_groups/{muscle_group_id}", response_model=list[Muscle])
+@router.get("/by_groups/{muscle_group_id}", response_model=list[MusclePublic])
 def get_muscles_by_group_id(
     muscle_group_id: int, session: Session = Depends(get_session)
 ):
@@ -41,7 +47,7 @@ def get_muscles_by_group_id(
     return content
 
 
-@router.get("/groups", response_model=list[MuscleGroup])
+@router.get("/groups", response_model=list[MuscleGroupPublic])
 def get_muscle_groups(session: Session = Depends(get_session)):
     muscle_groups = session.exec(select(MuscleGroup)).all()
     if not muscle_groups:
@@ -51,7 +57,7 @@ def get_muscle_groups(session: Session = Depends(get_session)):
     return muscle_groups
 
 
-@router.get("/groups/{muscle_group_id}", response_model=MuscleGroup)
+@router.get("/groups/{muscle_group_id}", response_model=MuscleGroupPublic)
 def get_muscle_group_by_id(
     muscle_group_id: int, session: Session = Depends(get_session)
 ):
@@ -66,7 +72,7 @@ def get_muscle_group_by_id(
     return muscle_group
 
 
-@router.get("/", response_model=list[Muscle])
+@router.get("/", response_model=list[MusclePublic])
 def get_muscles(
     session: Session = Depends(get_session), limit: int = DEFAULT_LIMIT, offset: int = 0
 ):
@@ -79,7 +85,7 @@ def get_muscles(
     return muscles
 
 
-@router.get("/{muscle_id}", response_model=Muscle)
+@router.get("/{muscle_id}", response_model=MusclePublic)
 def get_muscle_by_id(muscle_id: int, session: Session = Depends(get_session)):
     statement = select(Muscle).where(muscle_id == Muscle.id)
     try:
@@ -92,7 +98,9 @@ def get_muscle_by_id(muscle_id: int, session: Session = Depends(get_session)):
     return muscle
 
 
-@router.post("/groups", status_code=status.HTTP_201_CREATED, response_model=MuscleGroup)
+@router.post(
+    "/groups", status_code=status.HTTP_201_CREATED, response_model=MuscleGroupPublic
+)
 def create_muscle_group(
     group: MuscleGroupBase,
     session: Session = Depends(get_session),
@@ -107,7 +115,7 @@ def create_muscle_group(
     return db_muscle_group
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Muscle)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=MusclePublic)
 def create_muscle(
     muscle: MuscleBase,
     session: Session = Depends(get_session),
