@@ -3,13 +3,14 @@ from sqlmodel import Session, select
 from sqlalchemy.exc import NoResultFound
 from collections import defaultdict
 
-from app.dependencies import get_session
+from app.dependencies import get_session, get_language
 from app.models import Muscle, MuscleGroup
 from app.schemas import (
     MuscleBase,
     MuscleGroupBase,
     UserPublic,
     MusclePublic,
+    MusclePublicRu,
     MuscleGroupPublic,
 )
 from app.oauth2 import verify_token
@@ -20,19 +21,26 @@ from app.config import DEFAULT_LIMIT
 router = APIRouter(prefix="/muscles", tags=["muscles"])
 
 
-@router.get("/by_groups", response_model=dict[int, list[Muscle]])
-def get_grouped_muscles(session: Session = Depends(get_session)):
+@router.get("/by_groups", response_model=dict[int, list[MusclePublic | MusclePublicRu]])
+def get_grouped_muscles(
+        session: Session = Depends(get_session),
+        language: str = Depends(get_language)):
     content = defaultdict(list)
     statement = select(Muscle)
     muscles = session.exec(statement).all()
     for muscle in muscles:
-        content[muscle.group_id].append(muscle)
+        if language == "en":
+            content[muscle.group_id].append(MusclePublic.model_validate(muscle))
+        else:
+            content[muscle.group_id].append(MusclePublicRu.model_validate(muscle))
     return content
 
 
-@router.get("/by_groups/{muscle_group_id}", response_model=list[MusclePublic])
+@router.get("/by_groups/{muscle_group_id}", response_model=list[MusclePublic | MusclePublicRu])
 def get_muscles_by_group_id(
-    muscle_group_id: int, session: Session = Depends(get_session)
+    muscle_group_id: int,
+    session: Session = Depends(get_session),
+    language: str = Depends(get_language)
 ):
     try:
         session.exec(select(MuscleGroup).where(MuscleGroup.id == muscle_group_id)).one()
@@ -44,6 +52,12 @@ def get_muscles_by_group_id(
     content = session.exec(
         select(Muscle).where(Muscle.group_id == muscle_group_id)
     ).all()
+
+    if language == "en":
+        content = [MusclePublic.model_validate(i) for i in content]
+    else:
+        content = [MusclePublicRu.model_validate(i) for i in content]
+
     return content
 
 

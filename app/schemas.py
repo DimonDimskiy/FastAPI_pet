@@ -3,8 +3,6 @@ from pydantic import EmailStr
 
 
 class MuscleBase(SQLModel):
-    name: str = Field(nullable=False)
-    description: str = Field(nullable=False)
     image: str | None = Field()
     large_image: str | None = Field()
     group_id: int = Field(nullable=False, foreign_key="muscle_group.id", index=True)
@@ -12,6 +10,14 @@ class MuscleBase(SQLModel):
 
 class MusclePublic(MuscleBase):
     id: int
+    name: str = Field(nullable=False)
+    description: str = Field(nullable=False)
+
+
+class MusclePublicRu(MuscleBase):
+    id: int
+    name_ru: str = Field(nullable=False)
+    description_ru: str = Field(nullable=False)
 
 
 class MuscleGroupBase(SQLModel):
@@ -44,6 +50,7 @@ class ExercisePublic(ExerciseBase):
 
 
 class UserBase(SQLModel):
+    nickname: str = Field(nullable=False)
     email: EmailStr = Field(unique=True, index=True, sa_type=AutoString)
 
 
